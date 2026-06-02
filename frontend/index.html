@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digital Fraud Detection Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+    }
+
+    header {
+      background: #1e293b;
+      padding: 15px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    /* NAV LINKS */
+    .nav {
+      text-align: center;
+      margin: 10px;
+    }
+
+    .nav a {
+      color: #38bdf8;
+      margin: 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      padding: 20px;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .card h3 {
+      color: #38bdf8;
+    }
+
+    .big {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .green { color: #22c55e; }
+    .red { color: #ef4444; }
+    .yellow { color: #facc15; }
+
+    .table {
+      grid-column: span 4;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #334155;
+    }
+
+    th {
+      background: #0f172a;
+    }
+
+    .status-safe { color: #22c55e; }
+    .status-risk { color: #facc15; }
+    .status-fraud { color: #ef4444; }
+
+    canvas {
+      background: #1e293b;
+      border-radius: 10px;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  💳 Digital Fraud Detection Dashboard
+</header>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <a href="/detect">🔍 Check Transaction</a>
+  <a href="/logout" style="color:red;">🚪 Logout</a>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <h3>Total Transactions</h3>
+    <div class="big">12,450</div>
+  </div>
+
+  <div class="card">
+    <h3>Fraud Detected</h3>
+    <div class="big red">320</div>
+  </div>
+
+  <div class="card">
+    <h3>Safe Transactions</h3>
+    <div class="big green">11,900</div>
+  </div>
+
+  <div class="card">
+    <h3>Risk Score</h3>
+    <div class="big yellow">Medium</div>
+  </div>
+
+  <div class="card" style="grid-column: span 2;">
+    <h3>Fraud Analytics</h3>
+    <canvas id="fraudChart"></canvas>
+  </div>
+
+  <div class="card" style="grid-column: span 2;">
+    <h3>Transaction Types</h3>
+    <canvas id="typeChart"></canvas>
+  </div>
+
+  <div class="card table">
+    <h3>Recent Transactions</h3>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>User</th>
+        <th>Amount</th>
+        <th>Type</th>
+        <th>Status</th>
+      </tr>
+      <tr>
+        <td>#1001</td>
+        <td>Aman</td>
+        <td>₹6000</td>
+        <td>UPI</td>
+        <td class="status-safe">Safe</td>
+      </tr>
+      <tr>
+        <td>#1002</td>
+        <td>Akash</td>
+        <td>₹16000</td>
+        <td>Online</td>
+        <td class="status-risk">Risk</td>
+      </tr>
+      <tr>
+        <td>#1003</td>
+        <td>Ayush</td>
+        <td>₹40000</td>
+        <td>UPI</td>
+        <td class="status-fraud">Fraud</td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  const ctx1 = document.getElementById('fraudChart').getContext('2d');
+  new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      datasets: [{
+        label: 'Fraud Cases',
+        data: [12, 19, 10, 25, 22, 30, 28],
+        borderColor: '#ef4444',
+        fill: false
+      }]
+    }
+  });
+
+  const ctx2 = document.getElementById('typeChart').getContext('2d');
+  new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: ['UPI', 'Card', 'Net Banking'],
+      datasets: [{
+        data: [60, 25, 15],
+        backgroundColor: ['#38bdf8', '#22c55e', '#facc15']
+      }]
+    }
+  });
+</script>
+
+</body>
+</html>

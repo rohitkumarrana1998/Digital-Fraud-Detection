@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fraud Detection</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+body {
+    background:#020617;
+    color:white;
+    text-align:center;
+    padding:40px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+h2 { margin-bottom:20px; }
+
+.box {
+    background:#0f172a;
+    padding:25px;
+    border-radius:12px;
+    display:inline-block;
+    margin:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.4);
+    width:300px;
+    vertical-align: top;
+    transition:0.3s;
+}
+
+.box:hover {
+    transform: translateY(-5px);
+}
+
+input {
+    padding:12px;
+    margin:10px;
+    width:85%;
+    border-radius:6px;
+    border:none;
+    background:#1e293b;
+    color:white;
+}
+
+button {
+    padding:10px 20px;
+    background:#22c55e;
+    border:none;
+    cursor:pointer;
+    border-radius:6px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+button:hover {
+    background:#16a34a;
+}
+
+#reader {
+    width:280px;
+    margin:auto;
+    border:2px solid #22c55e;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+#result {
+    margin-top:10px;
+    font-size:14px;
+    color:#38bdf8;
+    word-wrap: break-word;
+}
+
+a {
+    color:#38bdf8;
+    text-decoration:none;
+}
+
+/* 🔥 Popup UI */
+.popup {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.7);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+}
+
+.popup-box {
+    background:#0f172a;
+    padding:25px;
+    border-radius:12px;
+    text-align:center;
+    width:300px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    animation: pop 0.3s ease;
+}
+
+.popup-box button {
+    margin-top:10px;
+}
+
+.hidden {
+    display:none;
+}
+
+@keyframes pop {
+    from {transform: scale(0.8); opacity:0;}
+    to {transform: scale(1); opacity:1;}
+}
+</style>
+</head>
+
+<body>
+
+<h2>💳 Fraud Detection System</h2>
+
+<!-- Manual -->
+<div class="box">
+<h3>🔍 Manual Check</h3>
+<form action="/predict" method="post">
+    <input type="number" name="amount" placeholder="Enter Amount" required><br>
+    <input type="number" name="step" placeholder="Enter Time" required><br>
+    <button type="submit">Check Fraud</button>
+</form>
+</div>
+
+<!-- QR -->
+<div class="box">
+<h3>📷 Scan QR</h3>
+
+<div id="reader"></div>
+<p id="result">Scanning...</p>
+
+<button onclick="stopScanner()">Stop</button>
+<button onclick="startScanner()">Start</button>
+
+</div>
+
+<!-- Upload -->
+<div class="box">
+<h3>📄 Upload Screenshot</h3>
+<form action="/scan-image" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" required><br>
+    <button type="submit">Scan</button>
+</form>
+</div>
+
+<br><br>
+<a href="/dashboard">⬅ Back</a>
+
+<!-- Popup -->
+<div id="popup" class="popup hidden">
+    <div class="popup-box">
+        <h3 id="popup-title"></h3>
+        <p id="popup-msg"></p>
+        <button onclick="closePopup()">OK</button>
+    </div>
+</div>
+
+<script>
+let scanner;
+
+// Start scanner
+function startScanner() {
+    document.getElementById("result").innerText = "🔄 Scanning...";
+
+    scanner = new Html5QrcodeScanner("reader", {
+        fps: 15,
+        qrbox: { width: 250, height: 250 }
+    });
+
+    scanner.render(onScanSuccess);
+}
+
+// Stop scanner
+function stopScanner() {
+    if (scanner) {
+        scanner.clear();
+        document.getElementById("result").innerText = "⛔ Stopped";
+    }
+}
+
+// Success
+function onScanSuccess(decodedText) {
+
+    document.getElementById("result").innerText = "Scanned: " + decodedText;
+
+    stopScanner(); // duplicate scan fix
+
+    fetch('/scan-qr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: decodedText })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.result.includes("Safe")) {
+            showPopup("✅ Safe", data.result);
+        } else {
+            showPopup("⚠️ Warning", data.result);
+        }
+    })
+    .catch(err => {
+        showPopup("Error", err);
+    });
+}
+
+// Popup
+function showPopup(title, msg) {
+    document.getElementById("popup-title").innerText = title;
+    document.getElementById("popup-msg").innerText = msg;
+    document.getElementById("popup").classList.remove("hidden");
+}
+
+function closePopup() {
+    document.getElementById("popup").classList.add("hidden");
+}
+
+// auto start
+startScanner();
+</script>
+
+</body>
+</html>
