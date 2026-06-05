@@ -8,7 +8,10 @@ import pytesseract
 from PIL import Image
 
 # 👉 Windows users ke liye (adjust if needed)
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+import os
+
+if os.name == "nt":
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 app = Flask(__name__, template_folder='../frontend')
 app.secret_key = "secret123"
